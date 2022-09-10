@@ -1,0 +1,7 @@
+[meta]
+name = "Style Manager"
+author = "Miss"
+category = "Openplanet"
+
+[script]
+timeout = 0
