@@ -58,9 +58,8 @@ namespace Window::Index
 		}
 		UI::PopItemWidth();
 
-		if (UI::Button(Icons::Undo + " Refresh")) {
-			@SelectedStyle = null;
-			startnew(Index::UpdateAsync);
+		if (UI::Button(Icons::Undo + " Default style")) {
+			Meta::LoadOverlayStyle("");
 		}
 		UI::SameLine();
 		if (UI::Button(Icons::PlusCircle + " Submit")) {
