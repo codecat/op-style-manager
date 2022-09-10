@@ -7,7 +7,7 @@ class @RemoteStyle
 
 	string RawUrl(const string &in path)
 	{
-		return "https://raw.githubusercontent.com/" + m_repository + "/" + m_branch + "/" + path;
+		return "https://raw.githubusercontent.com/" + m_repository + "/" + m_branch + "/" + Net::UrlEncode(path).Replace("%2F", "/");
 	}
 
 	string Url()

@@ -61,7 +61,7 @@ class @RemoteStyleInfo
 
 	void UseStyleAsync()
 	{
-		if (!Regex::IsMatch(m_pathStyle, "^[A-Za-z0-9\\-_]+\\.toml$")) {
+		if (!Regex::IsMatch(m_pathStyle, "^[A-Za-z0-9\\-_\\s]+\\.toml$")) {
 			error("Invalid style path!");
 			return;
 		}
