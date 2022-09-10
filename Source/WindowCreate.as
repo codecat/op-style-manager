@@ -296,6 +296,10 @@ namespace Window::Create
 	void RenderColors()
 	{
 		for (uint i = 0; i < Colors.Length; i++) {
+			if (UI::Button(Icons::Undo + "##Reset" + i)) {
+				Colors[i] = DefaultColors[i];
+			}
+			UI::SameLine();
 			Colors[i] = UI::InputColor4(tostring(UI::Col(i)), Colors[i]);
 		}
 	}
@@ -303,6 +307,10 @@ namespace Window::Create
 	void RenderVars()
 	{
 		for (uint i = 0; i < Vars.Length; i++) {
+			if (UI::Button(Icons::Undo + "##Reset" + i)) {
+				Vars[i].Reset();
+			}
+			UI::SameLine();
 			Vars[i].Render();
 		}
 	}
