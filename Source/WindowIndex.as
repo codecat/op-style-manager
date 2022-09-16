@@ -1,41 +1,26 @@
 namespace Window::Index
 {
-	RemoteStyle@ SelectedStyle = null;
-	RemoteStyleInfo@ SelectedStyleInfo = null;
-
-	bool SelectedStyleUpdating = false;
+	IndexItem@ SelectedStyle = null;
+	bool SelectedStyleError = false;
 
 	void SetSelectedStyleAsync(ref@ refStyle)
 	{
-		auto style = cast<RemoteStyle>(refStyle);
+		auto style = cast<IndexItem>(refStyle);
 
-		SelectedStyleUpdating = true;
 		@SelectedStyle = style;
-		@SelectedStyleInfo = null;
+		SelectedStyleError = false;
 
-		auto reqInfo = Net::HttpGet(style.RawUrl("info.json"));
-		while (!reqInfo.Finished()) {
-			yield();
+		if (style.m_info is null) {
+			style.DownloadInfoAsync();
+			if (style.m_info is null) {
+				SelectedStyleError = true;
+				return;
+			}
 		}
 
-		int responseCode = reqInfo.ResponseCode();
-		if (responseCode != 200) {
-			error("Unable to get info for style! (Response code " + responseCode + ")");
-			SelectedStyleUpdating = false;
-			return;
+		if (style.m_screenshots.Length < style.m_info.m_pathScreenshots.Length) {
+			style.DownloadScreenshotsAsync();
 		}
-
-		auto js = Json::Parse(reqInfo.String());
-		if (js.GetType() != Json::Type::Object) {
-			error("Unable to get info for style! (Json is not an object)");
-			SelectedStyleUpdating = false;
-			return;
-		}
-
-		@SelectedStyleInfo = RemoteStyleInfo(style, js);
-		startnew(CoroutineFunc(SelectedStyleInfo.DownloadScreenshotsAsync));
-
-		SelectedStyleUpdating = false;
 	}
 
 	void RenderIndex()
@@ -69,6 +54,48 @@ namespace Window::Index
 			UI::BeginTooltip();
 			UI::Text("Share your overlay style on Discord to get it added to this list.");
 			UI::EndTooltip();
+		}
+	}
+
+	void RenderInfo()
+	{
+		if (SelectedStyleError) {
+			UI::Text("\\$f00" + Icons::ExclamationCircle + "\\$z Unable to fetch style info");
+			return;
+		}
+
+		if (SelectedStyle.m_info is null) {
+			UI::Text("Fetching style info..");
+			return;
+		}
+
+		UI::PushFont(g_fontHeader);
+		UI::Text(SelectedStyle.m_name + " \\$777by " + SelectedStyle.m_author);
+		UI::PopFont();
+
+		if (SelectedStyle.m_info.m_version != "") {
+			UI::Text("\\$777Version " + SelectedStyle.m_info.m_version);
+		}
+
+		if (UI::Button(Icons::PaintBrush + " Use style")) {
+			startnew(CoroutineFunc(SelectedStyle.UseStyleAsync));
+		}
+		UI::SameLine();
+		if (UI::Button(Icons::Github + " Repository")) {
+			OpenBrowserURL(SelectedStyle.Url());
+		}
+
+		UI::Separator();
+
+		if (SelectedStyle.m_info.m_description != "") {
+			UI::TextWrapped(SelectedStyle.m_info.m_description);
+		}
+
+		for (uint i = 0; i < SelectedStyle.m_screenshots.Length; i++) {
+			auto texture = SelectedStyle.m_screenshots[i];
+			vec2 imageSize = texture.GetSize();
+			imageSize *= UI::GetContentRegionAvail().x / imageSize.x;
+			UI::Image(texture, imageSize);
 		}
 	}
 
