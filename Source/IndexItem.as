@@ -74,6 +74,11 @@ class @IndexItem
 			return;
 		}
 
+		if (m_info.m_pathStyle.StartsWith("/")) {
+			error("Invalid style path!");
+			return;
+		}
+
 		string filename = m_info.m_pathStyle;
 		int slashIndex = filename.IndexOf("/");
 		if (slashIndex != -1) {
