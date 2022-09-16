@@ -9,7 +9,13 @@ namespace Index
 
 		Items.RemoveRange(0, Items.Length);
 
-		string url = "https://openplanet.dev/plugin/stylemanager/config/styles";
+		string url = "https://openplanet.dev/plugin/stylemanager/config/";
+		if (Setting_TestIndex) {
+			url += "styles-test";
+		} else {
+			url += "styles";
+		}
+
 		auto req = Net::HttpGet(url);
 		while (!req.Finished()) {
 			yield();
