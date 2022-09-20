@@ -1,6 +1,7 @@
 enum RepositoryType
 {
 	Github,
+	Gitlab,
 	Gitea,
 }
 
@@ -15,11 +16,16 @@ class @RepositoryInfo
 	{
 		string type = js.Get("type", "github");
 		if (type == "github") { m_type = RepositoryType::Github; }
+		else if (type == "gitlab") { m_type = RepositoryType::Gitlab; }
 		else if (type == "gitea") { m_type = RepositoryType::Gitea; }
 
 		m_server = js.Get("server", "");
 		if (m_server != "" && !m_server.EndsWith("/")) {
 			m_server += "/";
+		}
+
+		if (m_type == RepositoryType::Gitlab && m_server == "") {
+			m_server = "https://gitlab.com/";
 		}
 
 		m_repository = js.Get("repository", "");
@@ -29,8 +35,12 @@ class @RepositoryInfo
 	string GetUrl()
 	{
 		switch (m_type) {
-			case RepositoryType::Github: return "https://github.com/" + m_repository;
-			case RepositoryType::Gitea: return m_server + m_repository;
+			case RepositoryType::Github:
+				return "https://github.com/" + m_repository;
+
+			case RepositoryType::Gitlab:
+			case RepositoryType::Gitea:
+				return m_server + m_repository;
 		}
 
 		return "unsupported-repository-type";
@@ -45,6 +55,9 @@ class @RepositoryInfo
 				// jsDelivr caches for up to 12 hours
 				return "https://cdn.jsdelivr.net/gh/" + m_repository + "@" + m_branch + "/" + _path;
 				//return "https://raw.githubusercontent.com/" + m_repository + "/" + m_branch + "/" + _path;
+
+			case RepositoryType::Gitlab:
+				return m_server + m_repository + "/-/raw/" + m_branch + "/" + _path;
 
 			case RepositoryType::Gitea:
 				return m_server + m_repository + "/raw/branch/" + m_branch + "/" + _path;
