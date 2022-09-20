@@ -1,6 +1,6 @@
 namespace Window
 {
-	bool Visible = true;
+	bool Visible = false;
 
 	void Render()
 	{
