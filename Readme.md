@@ -26,3 +26,60 @@ You can have multiple screenshots as well by using the `screenshots` key as an a
 ```json
 "screenshots": [ "...", "..." ]
 ```
+
+If you have a collection of multiple styles, you can also use the `styles` array to put more than
+one style:
+```json
+{
+	"styles": [
+		{
+			"name": "Example in red",
+			"description": "This is my style in red.",
+			"style": "ExampleRed.toml"
+		},
+		{
+			"name": "Example in blue",
+			"description": "This is my style in blue.",
+			"style": "ExampleBlue.toml"
+		}
+	]
+}
+```
+
+You may also have sub-styles:
+```json
+{
+	"styles": [
+		{
+			"name": "Colorful",
+			"styles": [
+				{
+					"description": "Example in red",
+					"name": "Red",
+					"style": "ExampleRed.toml"
+				},
+				{
+					"description": "Example in blue",
+					"name": "Blue",
+					"style": "ExampleBlue.toml"
+				}
+			]
+		},
+		{
+			"name": "Black and white",
+			"styles": [
+				{
+					"description": "Example in white",
+					"name": "White",
+					"style": "ExampleWhite.toml"
+				},
+				{
+					"description": "Example in black",
+					"name": "Black",
+					"style": "ExampleBlack.toml"
+				}
+			]
+		}
+	]
+}
+```
