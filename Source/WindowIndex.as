@@ -23,24 +23,56 @@ namespace Window::Index
 		}
 	}
 
+	void RenderIndexItem(IndexItem@ item)
+	{
+		string title = item.m_name;
+		if (item.m_author != "") {
+			title += "\\$bbb by " + item.m_author;
+		}
+
+		if (item.m_collection) {
+			if (UI::TreeNode(title)) {
+				switch (item.m_collectionState) {
+					case CollectionState::NotFetched:
+						startnew(CoroutineFunc(item.DownloadSubItemsAsync));
+						break;
+
+					case CollectionState::Fetching:
+						UI::Text("\\$666(fetching collection..)");
+						break;
+
+					case CollectionState::Fetched:
+						for (uint i = 0; i < item.m_subItems.Length; i++) {
+							RenderIndexItem(item.m_subItems[i]);
+						}
+						break;
+				}
+				UI::TreePop();
+			}
+		} else {
+			if (UI::Selectable(title, item is SelectedStyle)) {
+				startnew(SetSelectedStyleAsync, item);
+			}
+		}
+	}
+
 	void RenderIndex()
 	{
 		UI::Text("Available styles:");
 
 		UI::PushItemWidth(-1);
+		UI::PushStyleVar(UI::StyleVar::IndentSpacing, 38);
 		if (UI::BeginListBox("##StyleIndex", vec2(0, UI::GetContentRegionAvail().y - 40))) {
 			if (Index::Updating) {
 				UI::Text("\\$777" + Icons::Undo + " Updating style index..");
 			} else {
 				for (uint i = 0; i < Index::Items.Length; i++) {
-					auto item = Index::Items[i];
-					if (UI::Selectable(item.m_name + "\\$bbb by " + item.m_author, item is SelectedStyle)) {
-						startnew(SetSelectedStyleAsync, item);
-					}
+					RenderIndexItem(Index::Items[i]);
 				}
 			}
 			UI::EndListBox();
 		}
+		UI::PopStyleVar();
 		UI::PopItemWidth();
 
 		if (UI::Button(Icons::Undo + " Default style")) {
@@ -106,7 +138,7 @@ namespace Window::Index
 			startnew(Index::UpdateAsync);
 		}
 
-		UI::BeginChild("Index", vec2(200, 0));
+		UI::BeginChild("Index", vec2(250, 0));
 		RenderIndex();
 		UI::EndChild();
 

@@ -1,3 +1,10 @@
+enum CollectionState
+{
+	NotFetched,
+	Fetching,
+	Fetched,
+}
+
 class @IndexItem
 {
 	string m_name;
@@ -8,6 +15,36 @@ class @IndexItem
 	IndexInfo@ m_info;
 
 	array<UI::Texture@> m_screenshots;
+
+	bool m_collection = false;
+	CollectionState m_collectionState = CollectionState::NotFetched;
+	array<IndexItem@> m_subItems;
+
+	IndexItem(IndexItem@ parent, IndexInfo@ info)
+	{
+		@m_info = info;
+
+		m_name = (info.m_name != "" ? info.m_name : parent.m_name);
+		m_author = info.m_author;
+
+		@m_repository = parent.m_repository;
+
+		m_collection = (info.m_subStyles.Length > 0);
+		m_collectionState = CollectionState::Fetched;
+
+		for (uint i = 0; i < info.m_subStyles.Length; i++) {
+			auto subStyleInfo = info.m_subStyles[i];
+			m_subItems.InsertLast(IndexItem(this, subStyleInfo));
+		}
+	}
+
+	IndexItem(Json::Value@ js)
+	{
+		m_name = js.Get("name", "");
+		m_author = js.Get("author", "");
+		m_collection = js.Get("collection", false);
+		@m_repository = RepositoryInfo(js);
+	}
 
 	void DownloadInfoAsync()
 	{
@@ -55,6 +92,22 @@ class @IndexItem
 			auto texture = UI::LoadTexture(req.Buffer());
 			m_screenshots.InsertLast(texture);
 		}
+	}
+
+	void DownloadSubItemsAsync()
+	{
+		m_collectionState = CollectionState::Fetching;
+
+		if (m_info is null) {
+			DownloadInfoAsync();
+		}
+
+		for (uint i = 0; i < m_info.m_subStyles.Length; i++) {
+			auto subStyleInfo = m_info.m_subStyles[i];
+			m_subItems.InsertLast(IndexItem(this, subStyleInfo));
+		}
+
+		m_collectionState = CollectionState::Fetched;
 	}
 
 	void UseStyleAsync()

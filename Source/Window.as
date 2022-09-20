@@ -10,7 +10,7 @@ namespace Window
 
 		bool createOpen = false;
 
-		UI::SetNextWindowSize(700, 400, UI::Cond::FirstUseEver);
+		UI::SetNextWindowSize(750, 500, UI::Cond::FirstUseEver);
 		int windowFlags = UI::WindowFlags::NoCollapse;
 		if (UI::Begin(Icons::PaintBrush + " Overlay Style Manager###OverlayStyleManager", Visible, windowFlags)) {
 			UI::BeginTabBar("Tabs");
