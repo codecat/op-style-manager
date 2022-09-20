@@ -7,10 +7,9 @@ namespace Index
 	{
 		auto js = cast<Json::Value>(refJs);
 
-		string repository = js.Get("repository", "");
-		string branch = js.Get("branch", "");
+		auto repository = RepositoryInfo(js);
 
-		auto reqInfo = Net::HttpGet(GetRawGithubUrl(repository, branch, "info.json"));
+		auto reqInfo = Net::HttpGet(repository.GetRawUrl("info.json"));
 		while (!reqInfo.Finished()) {
 			yield();
 		}
@@ -35,8 +34,7 @@ namespace Index
 			auto newStyle = IndexItem();
 			newStyle.m_name = jsInfo.Get("name", js.Get("name", ""));
 			newStyle.m_author = jsInfo.Get("author", js.Get("author", ""));
-			newStyle.m_repository = repository;
-			newStyle.m_branch = branch;
+			@newStyle.m_repository = repository;
 			@newStyle.m_info = IndexInfo(jsInfo);
 			Items.InsertLast(newStyle);
 		}
@@ -72,8 +70,7 @@ namespace Index
 				auto newStyle = IndexItem();
 				newStyle.m_name = jsItem.Get("name", "");
 				newStyle.m_author = jsItem.Get("author", "");
-				newStyle.m_repository = jsItem.Get("repository", "");
-				newStyle.m_branch = jsItem.Get("branch", "");
+				@newStyle.m_repository = RepositoryInfo(jsItem);
 				Items.InsertLast(newStyle);
 			}
 		}

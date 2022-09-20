@@ -82,7 +82,7 @@ namespace Window::Index
 		}
 		UI::SameLine();
 		if (UI::Button(Icons::Github + " Repository")) {
-			OpenBrowserURL(SelectedStyle.Url());
+			OpenBrowserURL(SelectedStyle.m_repository.GetUrl());
 		}
 
 		UI::Separator();

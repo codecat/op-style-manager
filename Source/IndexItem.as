@@ -2,26 +2,16 @@ class @IndexItem
 {
 	string m_name;
 	string m_author;
-	string m_repository;
-	string m_branch;
+
+	RepositoryInfo@ m_repository;
 
 	IndexInfo@ m_info;
 
 	array<UI::Texture@> m_screenshots;
 
-	string RawUrl(const string &in path)
-	{
-		return GetRawGithubUrl(m_repository, m_branch, path);
-	}
-
-	string Url()
-	{
-		return "https://github.com/" + m_repository;
-	}
-
 	void DownloadInfoAsync()
 	{
-		auto reqInfo = Net::HttpGet(RawUrl("info.json"));
+		auto reqInfo = Net::HttpGet(m_repository.GetRawUrl("info.json"));
 		while (!reqInfo.Finished()) {
 			yield();
 		}
@@ -51,7 +41,7 @@ class @IndexItem
 			}
 
 			string path = m_info.m_pathScreenshots[i];
-			auto req = Net::HttpGet(RawUrl(path));
+			auto req = Net::HttpGet(m_repository.GetRawUrl(path));
 			while (!req.Finished()) {
 				yield();
 			}
@@ -87,7 +77,7 @@ class @IndexItem
 
 		string path = IO::FromStorageFolder(filename);
 
-		auto req = Net::HttpGet(RawUrl(m_info.m_pathStyle));
+		auto req = Net::HttpGet(m_repository.GetRawUrl(m_info.m_pathStyle));
 		while (!req.Finished()) {
 			yield();
 		}
