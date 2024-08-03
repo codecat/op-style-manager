@@ -8,7 +8,7 @@ namespace Window
 			return;
 		}
 
-		bool createOpen = false;
+		bool previewOpen = false;
 
 		UI::SetNextWindowSize(750, 500, UI::Cond::FirstUseEver);
 		int windowFlags = UI::WindowFlags::NoCollapse;
@@ -25,7 +25,7 @@ namespace Window
 
 			if (UI::BeginTabItem(Icons::PaintBrush + " Create")) {
 				if (UI::BeginChild("Create")) {
-					createOpen = true;
+					previewOpen = true;
 					Window::Create::Render();
 					UI::EndChild();
 				}
@@ -36,7 +36,7 @@ namespace Window
 		}
 		UI::End();
 
-		if (createOpen) {
+		if (previewOpen) {
 			Window::Preview::Render();
 		}
 	}
