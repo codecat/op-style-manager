@@ -125,6 +125,10 @@ namespace Window::Create
 	string SaveName = "Unnamed";
 	bool SaveSetCurrent = false;
 	array<vec4> Colors = DefaultColors;
+	array<vec4> TweakColorSource;
+	float TweakColorHue = 0;
+	float TweakColorSaturation = 0;
+	float TweakColorValue = 0;
 	array<StyleVar@> Vars = {
 		FloatStyleVar(UI::StyleVar::Alpha, 1.0f),
 		Vec2StyleVar(UI::StyleVar::WindowPadding, vec2(8, 8)),
@@ -277,6 +281,42 @@ namespace Window::Create
 		if (UI::BeginTabItem("Colors")) {
 			if (UI::BeginChild("Colors")) {
 				RenderColors();
+				UI::EndChild();
+			}
+			UI::EndTabItem();
+		}
+
+		if (UI::BeginTabItem("Tweak colors")) {
+			if (UI::BeginChild("Tweak")) {
+				if (UI::IsWindowAppearing()) {
+					TweakColorSource = Colors;
+					TweakColorHue = 0;
+					TweakColorSaturation = 0;
+					TweakColorValue = 0;
+				}
+
+				TweakColorHue = UI::SliderFloat("Hue", TweakColorHue, -1, 1);
+				TweakColorSaturation = UI::SliderFloat("Saturation", TweakColorSaturation, -1, 1);
+				TweakColorValue = UI::SliderFloat("Value", TweakColorValue, -1, 1);
+
+				if (UI::Button("Reset")) {
+					TweakColorHue = 0;
+					TweakColorSaturation = 0;
+					TweakColorValue = 0;
+				}
+
+				for (uint i = 0; i < TweakColorSource.Length; i++) {
+					vec4 c = TweakColorSource[i];
+					vec3 hsv = UI::ToHSV(c.x, c.y, c.z);
+					hsv.x += TweakColorHue;
+					hsv.y += TweakColorSaturation;
+					hsv.z += TweakColorValue;
+					float a = c.w;
+					c = UI::HSV(hsv.x, hsv.y, hsv.z);
+					c.w = a;
+					Colors[i] = c;
+				}
+
 				UI::EndChild();
 			}
 			UI::EndTabItem();
