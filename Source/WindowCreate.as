@@ -126,9 +126,9 @@ namespace Window::Create
 	bool SaveSetCurrent = false;
 	array<vec4> Colors = DefaultColors;
 	array<vec4> TweakColorSource;
-	float TweakColorHue = 0;
-	float TweakColorSaturation = 0;
-	float TweakColorValue = 0;
+	float TweakBaseHue = 0;
+	vec3 TweakHsvAdd(0);
+	vec3 TweakHsvMultiply(1);
 	array<StyleVar@> Vars = {
 		FloatStyleVar(UI::StyleVar::Alpha, 1.0f),
 		Vec2StyleVar(UI::StyleVar::WindowPadding, vec2(8, 8)),
@@ -219,7 +219,7 @@ namespace Window::Create
 		f.WriteLine("[Colors]");
 		for (uint i = 0; i < Colors.Length; i++) {
 			if (IsColorDefault(i)) {
-				continue;
+				//continue;
 			}
 			vec4 color = Colors[i];
 			string name = UI::GetStyleColorName(UI::Col(i));
@@ -320,28 +320,41 @@ namespace Window::Create
 	{
 		if (UI::IsWindowAppearing()) {
 			TweakColorSource = Colors;
-			TweakColorHue = 0;
-			TweakColorSaturation = 0;
-			TweakColorValue = 0;
+			TweakBaseHue = 0;
+			TweakHsvAdd = vec3(0);
+			TweakHsvMultiply = vec3(1);
 		}
 
-		TweakColorHue = UI::SliderFloat("Hue", TweakColorHue, -1, 1);
-		TweakColorSaturation = UI::SliderFloat("Saturation", TweakColorSaturation, -1, 1);
-		TweakColorValue = UI::SliderFloat("Value", TweakColorValue, -1, 1);
+		TweakBaseHue = UI::SliderFloat("Base Hue", TweakBaseHue, 0, 360);
+		TweakHsvAdd = UI::SliderFloat3("HSV Add", TweakHsvAdd, -1, 1);
+		TweakHsvMultiply = UI::SliderFloat3("HSV Multiply", TweakHsvMultiply, 0, 10);
 
 		if (UI::Button("Reset")) {
-			TweakColorHue = 0;
-			TweakColorSaturation = 0;
-			TweakColorValue = 0;
+			TweakBaseHue = 0;
+			TweakHsvAdd = vec3(0);
+			TweakHsvMultiply = vec3(1);
 		}
 
 		for (uint i = 0; i < TweakColorSource.Length; i++) {
 			vec4 c = TweakColorSource[i];
 			vec3 hsv = UI::ToHSV(c.x, c.y, c.z);
-			hsv.x = Math::Clamp(hsv.x + TweakColorHue, 0.0f, 1.0f);
-			hsv.y = Math::Clamp(hsv.y + TweakColorSaturation, 0.0f, 1.0f);
-			hsv.z = Math::Clamp(hsv.z + TweakColorValue, 0.0f, 1.0f);
 			float a = c.w;
+
+			// Base hue
+			if (hsv.y == 0) {
+				hsv.x = TweakBaseHue / 360.0f;
+			}
+
+			// Add
+			hsv.x = Math::Clamp(hsv.x + TweakHsvAdd.x, 0.0f, 1.0f);
+			hsv.y = Math::Clamp(hsv.y + TweakHsvAdd.y, 0.0f, 1.0f);
+			hsv.z = Math::Clamp(hsv.z + TweakHsvAdd.z, 0.0f, 1.0f);
+
+			// Multiply
+			hsv.x = Math::Clamp(hsv.x * TweakHsvMultiply.x, 0.0f, 1.0f);
+			hsv.y = Math::Clamp(hsv.y * TweakHsvMultiply.y, 0.0f, 1.0f);
+			hsv.z = Math::Clamp(hsv.z * TweakHsvMultiply.z, 0.0f, 1.0f);
+
 			c = UI::HSV(hsv.x, hsv.y, hsv.z);
 			c.w = a;
 			Colors[i] = c;
