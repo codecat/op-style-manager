@@ -63,11 +63,11 @@ namespace Window::Index
 		UI::PushItemWidth(-1);
 		UI::PushStyleVar(UI::StyleVar::IndentSpacing, 38);
 		if (UI::BeginListBox("##StyleIndex", vec2(0, UI::GetContentRegionAvail().y - 40))) {
-			if (Index::Updating) {
+			if (::Index::Updating) {
 				UI::Text("\\$777" + Icons::Undo + " Updating style index..");
 			} else {
-				for (uint i = 0; i < Index::Items.Length; i++) {
-					RenderIndexItem(Index::Items[i]);
+				for (uint i = 0; i < ::Index::Items.Length; i++) {
+					RenderIndexItem(::Index::Items[i]);
 				}
 			}
 			UI::EndListBox();
@@ -135,7 +135,7 @@ namespace Window::Index
 	{
 		if (UI::IsWindowAppearing()) {
 			@SelectedStyle = null;
-			startnew(Index::UpdateAsync);
+			startnew(::Index::UpdateAsync);
 		}
 
 		UI::BeginChild("Index", vec2(250, 0));
