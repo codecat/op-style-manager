@@ -2,7 +2,7 @@
 name = "Style Manager"
 author = "Miss"
 category = "Openplanet"
-version = "1.3.0"
+version = "1.3.1"
 
 [script]
 timeout = 0
